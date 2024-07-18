@@ -1,16 +1,9 @@
 <script setup>
+import FileUpload from '@/components/FileUpload.vue'
 </script>
 
 <template>
-  <header>
-    
-  </header>
-
-  <main>
-    Placeholder
-  </main>
+  <FileUpload />
 </template>
 
-<style scoped>
-
-</style>
+<style></style>
