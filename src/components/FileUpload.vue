@@ -1,6 +1,13 @@
 <script setup>
 import { ref } from 'vue'
 
+const props = defineProps({
+  maxSize: Number,
+  extension: String
+})
+const emit = defineEmits(['data'])
+
+
 const file = ref({
   name: '',
   size: 0,
@@ -11,42 +18,53 @@ const file = ref({
 const error = ref(null)
 
 const handleFileChange = (e) => {
+  error.value = null
+
   if (e.target.files && e.target.files[0]) {
     const upload = e.target.files[0];
 
-    if (isFileSizeValid(upload.size)) {
-      file.value.name = upload.name.split('.').shift()
-      file.value.extension = upload.name.split('.').pop()
-      file.value.size = upload.size
-      file.value.isUploaded = true
+    file.value.name = upload.name.split('.').shift()
+    file.value.extension = upload.name.split('.').pop()
+    file.value.size = upload.size
+    file.value.isUploaded = true
 
+    if (isFileExtensionValid(file.value.extension) && isFileSizeValid(file.value.size)) {
       const reader = new FileReader()
-      
-      reader.onloadend = (e) => {
-        console.log('Done loading')
+      reader.onload = (evt) => {
+        emit('data', evt.target.result)
       }
+
+      reader.readAsText(upload)
     }
   }
 }
 
 const isFileSizeValid = (size) => {
-  if (size > 50) {
-    error.value = 'File is too large'
+  if (size > props.maxSize) {
+    error.value = 'File is too large.'
     return false
   }
 
-  error.value = null
+  return true
+}
+
+const isFileExtensionValid = (ext) => {
+  if (ext !== props.extension) {
+    error.value = `Extension ${ext} is not supported file must be in ${props.extension} format.`
+    return false
+  }
+
   return true
 }
 </script>
 
 <template>
   <input type="file" name="" id="" @change="handleFileChange($event)">
-  <div class="info" v-if="!error">
+  <div class="info">
     ----
-    <span>File name: {{ file.name || "No file selected" }}</span>
-    <span>File size: {{ file.size || "No file selected" }}</span>
-    <span>File extension: {{ file.extension || "No file selected" }}</span>
+    <span>File name: {{ file.name || "--" }}</span>
+    <span>File size: {{ file.size || "--" }}</span>
+    <span>File extension: {{ file.extension || "--" }}</span>
   </div>
 
   <div v-if="error">
