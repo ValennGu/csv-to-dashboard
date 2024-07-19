@@ -7,15 +7,12 @@ const props = defineProps({
 })
 const emit = defineEmits(['data'])
 
-
+const error = ref(null)
 const file = ref({
   name: '',
   size: 0,
   extension: '',
-  isUploaded: false,
 })
-
-const error = ref(null)
 
 const handleFileChange = (e) => {
   error.value = null
@@ -26,7 +23,6 @@ const handleFileChange = (e) => {
     file.value.name = upload.name.split('.').shift()
     file.value.extension = upload.name.split('.').pop()
     file.value.size = upload.size
-    file.value.isUploaded = true
 
     if (isFileExtensionValid(file.value.extension) && isFileSizeValid(file.value.size)) {
       const reader = new FileReader()
@@ -60,7 +56,7 @@ const isFileExtensionValid = (ext) => {
 
 <template>
   <input type="file" name="" id="" @change="handleFileChange($event)">
-  <div class="info">
+  <div class="info" v-if="!error.value">
     ----
     <span>File name: {{ file.name || "--" }}</span>
     <span>File size: {{ file.size || "--" }}</span>
